@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -7,9 +6,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Fornecedores.Data;
 using Fornecedores.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fornecedores.Controllers
 {
+    [Authorize]
     public class ProdutosController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,6 +20,7 @@ namespace Fornecedores.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         // GET: Produtos
         public async Task<IActionResult> Index()
         {
@@ -26,6 +28,7 @@ namespace Fornecedores.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
+        [AllowAnonymous]
         // GET: Produtos/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -48,7 +51,9 @@ namespace Fornecedores.Controllers
         // GET: Produtos/Create
         public IActionResult Create()
         {
-            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Documento");
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Nome");
+            //ViewBag.FornecedorId = new SelectList(_context.Fornecedores, "Id", "Nome");//quando chega na view morre e só fica os dados
+            //TempData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Nome");//dura uma request a mais (sessão de curta duração)
             return View();
         }
 
@@ -57,7 +62,7 @@ namespace Fornecedores.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FornecedorId,Nome,Descricao,Imagem,Valor,DataCadastro,Ativo,Id")] Produto produto)
+        public async Task<IActionResult> Create(Produto produto)
         {
             if (ModelState.IsValid)
             {
@@ -66,7 +71,7 @@ namespace Fornecedores.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Documento", produto.FornecedorId);
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Nome", produto.FornecedorId);
             return View(produto);
         }
 
@@ -83,7 +88,7 @@ namespace Fornecedores.Controllers
             {
                 return NotFound();
             }
-            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Documento", produto.FornecedorId);
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Nome", produto.FornecedorId);
             return View(produto);
         }
 
@@ -92,7 +97,7 @@ namespace Fornecedores.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("FornecedorId,Nome,Descricao,Imagem,Valor,DataCadastro,Ativo,Id")] Produto produto)
+        public async Task<IActionResult> Edit(Guid id, Produto produto)
         {
             if (id != produto.Id)
             {
@@ -119,7 +124,7 @@ namespace Fornecedores.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Documento", produto.FornecedorId);
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "Id", "Nome", produto.FornecedorId);
             return View(produto);
         }
 
