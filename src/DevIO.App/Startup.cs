@@ -14,6 +14,10 @@ using DevIO.App.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using DevIO.Data.Context;
+using DevIO.Business.Interfaces;
+using DevIO.Data.Repository;
+using DevIO.App.AutoMapper;
+using AutoMapper;
 
 namespace DevIO.App
 {
@@ -49,7 +53,22 @@ namespace DevIO.App
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+
+            //configurando auto mappper
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new AutoMapperConfig());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddScoped<MeuDbContext>();
+            services.AddScoped<IProdutoRepository, ProdutoRepository>();
+            services.AddScoped<IFornecedorRepository, FornecedorRepository>();
+            services.AddScoped<IEnderecoRepository, EnderecoRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
